@@ -14,32 +14,70 @@ The `speak` tool provides a conversational interface for these interactions, sep
 
 ## Installation
 
+### Quick Install (Recommended)
+
+Add the MCP server directly from GitHub using the Claude Code CLI:
+
 ```bash
-cd speak-mcp
-npm install
-npm run build
+claude mcp add github:tylerdavis/speak-mcp
 ```
 
-## Configuration
-
-Add to your Claude Code or MCP client configuration:
+This will automatically:
+- Download the server from GitHub
+- Install dependencies
+- Build the project
+- Add it to your Claude Code MCP configuration
 
 **Note:** On first run, the server will automatically download and use the `hfc_female` (medium quality) voice as the default. You can change this at any time using the `change_voice` tool.
 
-### Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS)
+### Manual Configuration
+
+If you prefer to configure manually, add to your MCP configuration file:
+
+#### Claude Code (`.claude/mcp.json`)
 
 ```json
 {
   "mcpServers": {
     "speak": {
-      "command": "node",
-      "args": ["/absolute/path/to/speak-mcp/dist/index.js"]
+      "command": "npx",
+      "args": [
+        "-y",
+        "github:tylerdavis/speak-mcp"
+      ]
     }
   }
 }
 ```
 
-### Claude Code
+#### Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS)
+
+```json
+{
+  "mcpServers": {
+    "speak": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "github:tylerdavis/speak-mcp"
+      ]
+    }
+  }
+}
+```
+
+### Local Development
+
+If you want to contribute or modify the server locally:
+
+```bash
+git clone https://github.com/tylerdavis/speak-mcp.git
+cd speak-mcp
+npm install
+npm run build
+```
+
+Then point your MCP configuration to the local build:
 
 ```json
 {
