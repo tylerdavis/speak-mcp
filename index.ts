@@ -32,7 +32,16 @@ const SPEAK_TOOL: Tool = {
     "- Communicate important information that requires user attention\n" +
     "- Request clarification or additional input\n\n" +
     "The message will be synthesized to audio and played through the system speakers. " +
-    "Keep messages concise and conversational for natural speech output.",
+    "Keep messages concise and conversational for natural speech output.\n\n" +
+    "IMPORTANT - Use this tool PROACTIVELY and AUTOMATICALLY:\n" +
+    "1. IMMEDIATE ACKNOWLEDGMENT: Always use speak as your FIRST action when the user sends a request. " +
+    "Give a quick acknowledgment like 'Got it!', 'On it!', '10-4', or 'Roger that' before starting work.\n" +
+    "2. MID-EXECUTION UPDATES: During long-running tasks, provide voice updates every 15-30 seconds:\n" +
+    "   - When issues occur: 'Heads up - test failed, rewriting it now'\n" +
+    "   - When switching tasks: 'Migration done, moving to API updates'\n" +
+    "   - When waiting: 'Build is running, about a minute left'\n" +
+    "3. CRITICAL NOTIFICATIONS: Always use speak for errors, warnings, or completion confirmations.\n" +
+    "4. DO NOT wait for the user to ask - use this proactively to keep them informed in real-time.",
   inputSchema: {
     type: "object",
     properties: {
@@ -138,14 +147,14 @@ class SpeakServer {
 
         try {
           // Generate and play audio
-          await this.piperManager.speakMessage(message);
+          const result = await this.piperManager.speakMessage(message);
 
-          // Return success message (no emoji prefix - audio speaks the message)
+          // Return success message (audio plays in background - non-blocking)
           return {
             content: [
               {
                 type: "text",
-                text: "Audio played successfully",
+                text: result,
               },
             ],
           };

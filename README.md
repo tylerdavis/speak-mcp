@@ -24,6 +24,8 @@ npm run build
 
 Add to your Claude Code or MCP client configuration:
 
+**Note:** On first run, the server will automatically download and use the `hfc_female` (medium quality) voice as the default. You can change this at any time using the `change_voice` tool.
+
 ### Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS)
 
 ```json
@@ -59,6 +61,11 @@ Sends a message directly to the user through a conversational interface using te
 **Parameters:**
 - `message` (required): The message to communicate to the user
 - `message_type` (optional): Type of message - `question`, `update`, `info`, or `warning`
+
+**Behavior:**
+- **Non-blocking**: The tool returns immediately after generating the audio file (~500ms)
+- Audio plays in the background while your agent continues working
+- Perfect for real-time updates during long-running tasks
 
 **Examples:**
 

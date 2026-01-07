@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is an MCP (Model Context Protocol) server that provides a `speak` tool for agent-to-user communication. The server enables AI agents to send conversational messages to users through a clean interface, separate from technical logs.
 
+**Default Voice:** On first initialization, the server automatically downloads and uses `hfc_female` (medium quality) as the default voice.
+
 ## Build and Development Commands
 
 ```bash
@@ -40,6 +42,11 @@ Converts text to speech and plays it to the user.
 - `message_type` (optional, enum): "question", "update", "info", or "warning"
 
 **Returns:** Success or error message
+
+**Performance:**
+- Non-blocking: Returns in ~500ms after generating audio
+- Audio plays in background while agent continues working
+- Multiple speak calls can be made without waiting for previous audio to finish
 
 ### 2. list_voices
 Lists all available English (US) voices for text-to-speech.

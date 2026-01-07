@@ -173,7 +173,7 @@ export class PiperManager {
         console.error(`Using existing voice: ${this.config.selectedVoice.name}`);
         return;
       } catch (error) {
-        console.error('Configured voice not found, prompting for selection...');
+        console.error('Configured voice not found, selecting default...');
       }
     }
 
@@ -184,7 +184,15 @@ export class PiperManager {
         throw new Error('No voices available');
       }
 
-      const selectedVoice = await promptUserForVoice(voices);
+      // Default to hfc_female medium quality
+      const defaultVoiceKey = 'en_US-hfc_female-medium';
+      const selectedVoice = voices.find(v => v.key === defaultVoiceKey);
+
+      if (!selectedVoice) {
+        throw new Error(`Default voice ${defaultVoiceKey} not found`);
+      }
+
+      console.error(`Using default voice: ${selectedVoice.name}`);
       const modelPath = await downloadVoiceModel(selectedVoice, this.voicesDir);
 
       this.voiceModelPath = modelPath;
@@ -221,10 +229,20 @@ export class PiperManager {
     const tempFilePath = path.join(os.tmpdir(), tempFileName);
 
     try {
+      // Generate audio synchronously (must complete before we can play)
       await generateAudio(this.piperPath, this.voiceModelPath, text, tempFilePath);
-      await playAudio(tempFilePath, this.platform);
-      await cleanupTempFiles(tempFilePath);
-      return 'Audio played successfully';
+
+      // Play audio asynchronously in the background
+      // Don't await - let it play while we return immediately
+      playAudio(tempFilePath, this.platform)
+        .then(() => cleanupTempFiles(tempFilePath))
+        .catch((error) => {
+          console.error('Audio playback error:', error);
+          cleanupTempFiles(tempFilePath);
+        });
+
+      // Return immediately while audio plays in background
+      return 'Audio playing in background';
     } catch (error) {
       await cleanupTempFiles(tempFilePath);
       throw error;
