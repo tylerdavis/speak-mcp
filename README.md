@@ -54,7 +54,7 @@ Add to your Claude Code or MCP client configuration:
 
 ### Tool: `speak`
 
-Sends a message directly to the user through a conversational interface.
+Sends a message directly to the user through a conversational interface using text-to-speech.
 
 **Parameters:**
 - `message` (required): The message to communicate to the user
@@ -87,6 +87,60 @@ await mcp.speak({
   message_type: "warning"
 });
 ```
+
+### Tool: `list_voices`
+
+Lists all available English (US) voices for text-to-speech, showing which are downloaded and which is currently selected.
+
+**Parameters:** None
+
+**Example:**
+
+```typescript
+await mcp.list_voices();
+```
+
+**Returns:**
+```
+Available voices (16 total):
+
+Currently selected: ryan-high (high quality, 116.2MB) *
+
+Available to download:
+1. amy-high (high quality, 116.2MB)
+2. danny-high (high quality, 116.2MB)
+...
+
+Already downloaded:
+• ryan-high (high quality, 116.2MB) *
+• amy-medium (medium quality, 63.0MB)
+```
+
+### Tool: `change_voice`
+
+Changes the active text-to-speech voice. If the voice isn't already downloaded, it will be downloaded automatically.
+
+**Parameters:**
+- `voice` (required): Voice identifier - supports multiple formats:
+  - Full key: `"en_US-amy-high"`
+  - Short name: `"amy-high"`
+  - Partial match: `"amy"` (picks highest quality)
+  - Numeric index: `"1"` (from list_voices output)
+
+**Examples:**
+
+```typescript
+// Change to a specific voice by name
+await mcp.change_voice({ voice: "amy-high" });
+
+// Change using partial match (picks highest quality)
+await mcp.change_voice({ voice: "amy" });
+
+// Change using numeric index from list_voices
+await mcp.change_voice({ voice: "1" });
+```
+
+**Note:** First-time voice downloads take 30-120 seconds depending on voice size. Progress is displayed during download.
 
 ## Design Philosophy
 

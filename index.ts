@@ -51,6 +51,40 @@ const SPEAK_TOOL: Tool = {
   },
 };
 
+const LIST_VOICES_TOOL: Tool = {
+  name: "list_voices",
+  description:
+    "List all available English (US) voices for text-to-speech. Shows voice names, quality levels, " +
+    "and sizes. The currently selected voice is marked with an asterisk (*). " +
+    "Voices are separated into 'Available to download' and 'Already downloaded' sections.",
+  inputSchema: {
+    type: "object",
+    properties: {},
+    required: [],
+  },
+};
+
+const CHANGE_VOICE_TOOL: Tool = {
+  name: "change_voice",
+  description:
+    "Change the text-to-speech voice. Provide either the voice name (e.g., 'amy-high') or " +
+    "a number from the list_voices output. If the voice is not already downloaded, it will be " +
+    "downloaded automatically (may take 1-2 minutes for larger voices). " +
+    "Progress will be shown during download. The voice becomes active immediately after the operation completes.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      voice: {
+        type: "string",
+        description:
+          "Voice identifier - either the full voice key (e.g., 'en_US-amy-high'), a simplified " +
+          "name (e.g., 'amy-high' or just 'amy'), or a number from the list_voices output (1-based index).",
+      },
+    },
+    required: ["voice"],
+  },
+};
+
 class SpeakServer {
   private server: Server;
   private piperManager: PiperManager;
@@ -87,7 +121,7 @@ class SpeakServer {
   private setupHandlers(): void {
     // List available tools
     this.server.setRequestHandler(ListToolsRequestSchema, async () => ({
-      tools: [SPEAK_TOOL],
+      tools: [SPEAK_TOOL, LIST_VOICES_TOOL, CHANGE_VOICE_TOOL],
     }));
 
     // Handle tool calls
@@ -123,6 +157,60 @@ class SpeakServer {
               {
                 type: "text",
                 text: `Failed to play audio: ${errorMessage}`,
+              },
+            ],
+          };
+        }
+      }
+
+      if (request.params.name === "list_voices") {
+        try {
+          const voiceList = await this.piperManager.listVoices();
+          return {
+            content: [
+              {
+                type: "text",
+                text: voiceList,
+              },
+            ],
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Failed to list voices: ${errorMessage}`,
+              },
+            ],
+          };
+        }
+      }
+
+      if (request.params.name === "change_voice") {
+        const { voice } = request.params.arguments as { voice: string };
+
+        if (!voice || typeof voice !== "string") {
+          throw new Error("Voice identifier is required and must be a string");
+        }
+
+        try {
+          const result = await this.piperManager.changeVoice(voice);
+          return {
+            content: [
+              {
+                type: "text",
+                text: result,
+              },
+            ],
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          return {
+            content: [
+              {
+                type: "text",
+                text: `Failed to change voice: ${errorMessage}`,
               },
             ],
           };
