@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "speak": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "/Users/tmd/Development/speak/dist/index.js"
+      ],
+      "env": {}
+    }
+  }
+}
