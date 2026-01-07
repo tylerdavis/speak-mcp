@@ -4,6 +4,7 @@
   "description": "MCP server for agent-to-user communication",
   "type": "module",
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
